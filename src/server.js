@@ -2,10 +2,8 @@ const express = require("express")
 const { error } = require('./middleware/error')
 require('dotenv').config()
 const port = process.env.PORT || 5000
-const database = require('./database')
 const router = require('./routes')
 
-database()
 
 const app = express()
 app.use(express.json())
