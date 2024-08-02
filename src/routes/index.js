@@ -1,7 +1,8 @@
 const { Router } = require('express')
+const { protect } = require('../middleware/protect')
 const router = Router()
 
-
+router.use('/socios', protect, require('./socio'))
 router.use('/auth', require('./auth'))
 
 
