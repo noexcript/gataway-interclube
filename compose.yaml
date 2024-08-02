@@ -1,0 +1,15 @@
+
+services:
+  server:
+    build:
+      context: .
+    container_name: gataway-api-interclub
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3001:3001
+
+
+
