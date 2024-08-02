@@ -7,7 +7,7 @@ const base = memberApi
 
 const get = async (items = null) => {
     const method = 'GET';
-    return await requestApi(base, method, null, items);
+    return await requestApi(base, method,items);
 }
 const post = async (body) => {
     const method = 'POST';

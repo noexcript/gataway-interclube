@@ -1,8 +1,6 @@
 const jwt = require('jsonwebtoken')
-const bcrypt = require('bcryptjs')
 const asyncHandler = require('express-async-handler')
-// const User = require('../models/user')
-const {post} = require('../services/members/auth.service') 
+const { login, register, profile } = require('../services/members/auth.service')
 
 
 const generetedJWTtoken = id => jwt.sign({ id },
@@ -11,15 +9,16 @@ const generetedJWTtoken = id => jwt.sign({ id },
 
 const signin = asyncHandler(async (req, res) => {
     const { email, password } = req.body
-    const user = await post(email, password)
+    const result = await login(email, password)
 
-    if (!user) {
+    if (!result.object) {
         res.status(400)
-        throw new Error('User not found')
+        throw new Error(result.message)
     }
-    if (user && (await bcrypt.compare(password, user.password))) {
+    const { user } = result.object
+    if (user) {
         res.status(201).json({
-            message: 'Success to signin',
+            message: result.message,
             object: {
                 _id: user.id,
                 username: user.username,
@@ -29,7 +28,7 @@ const signin = asyncHandler(async (req, res) => {
         })
     } else {
         res.status(400)
-        throw new Error('Invalid credentials')
+        throw new Error('Credencias inválidas')
     }
 
 })
@@ -40,49 +39,46 @@ const signup = asyncHandler(async (req, res) => {
 
     if (!username || !email || !password) {
         res.status(400)
-        throw new Error('All fields are mandatory')
+        throw new Error('Todos os campos são obrigatório')
     }
 
-    const user = await User.findOne({ email })
-    if (user) {
+    const result = await register(username, email, password)
+
+
+    if (result.type == 'error') {
         res.status(400)
-        throw new Error('This e-mail already exists')
+        throw new Error(result.message)
     }
-
-    const salt = await bcrypt.genSalt(10)
-    const hash = await bcrypt.hash(password, salt)
-
-    const userCreate = await User.create({ username, password: hash, email })
-
-    if (!userCreate) {
-        res.status(400)
-        throw new Error('Invalid user data')
-    } else {
-
-        res.status(201).json({
-            message: 'Success to signup',
-            object: {
-                _id: userCreate.id,
-                username: userCreate.username,
-                email: userCreate.email,
-                token: generetedJWTtoken(user.id)
-            }
-        })
-    }
+    res.status(201).json(result)
 })
 
 const currentUser = asyncHandler(async (req, res) => {
     const { id } = req.user
 
-    const user = await User.findById(id).select('-password')
-    if (!user) {
+    const result = await profile(id)
+
+    if (!result.object) {
         res.status(400)
-        throw new Error('User not found')
+        throw new Error(result.message)
     }
 
-    res.status(200).json({ object: user, message: 'Get User' })
+    res.status(200).json(result)
+})
+const signout = asyncHandler(async (req, res) => {
+
+    const { id } = req.user
+
+
+    jwt.sign({ id },
+        process.env.JWT_SECRET, { expiresIn: '0h' }
+    )
+    req.user = null
+    res.status(200).json({ object: null, message: 'Logout feito com sucesso' })
 })
 
 
-module.exports = { signin, signup, currentUser }
+
+
+
+module.exports = { signin, signup, currentUser, signout }
 
