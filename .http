@@ -1,1 +1,11 @@
-http://localhost:8000/api/v1/heloo;
+http://localhost:8000/api/v1/heloo;~
+
+
+
+###
+GET http://localhost/members/view/front/api.php
+Content-Type: application/json
+
+{
+    "action": "/"
+}

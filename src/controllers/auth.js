@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const asyncHandler = require('express-async-handler')
-const User = require('../models/user')
+// const User = require('../models/user')
+const {post} = require('../services/members/auth.service') 
 
 
 const generetedJWTtoken = id => jwt.sign({ id },
@@ -10,7 +11,7 @@ const generetedJWTtoken = id => jwt.sign({ id },
 
 const signin = asyncHandler(async (req, res) => {
     const { email, password } = req.body
-    const user = await User.findOne({ email })
+    const user = await post(email, password)
 
     if (!user) {
         res.status(400)

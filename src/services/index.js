@@ -1,46 +1,56 @@
-const apiManager = require("../core/providers/apiManager")
+const axios = require('axios');
 
 const getHeaders = () => {
     return {
-        'Accept': 'application/json',
         'Content-Type': 'application/json',
-    }
-}
+    };
+};
 
-
-const request = async (url, method = 'POST', body = null, items = null) => {
+const requestApi = async (baseURL, method = 'POST', body = null, items = null) => {
+   
+    const apiManager = axios.create({
+        responseType: 'json',
+        
+    });
+    
     try {
-        return await apiManager(`${$url}`, {
+        const response = await apiManager(baseURL, {
             method: method,
             params: items,
             headers: getHeaders(),
-            data: body
-        })
+            data: JSON.stringify(body)
+        });
+        return response.data;
     } catch (error) {
-        return error.response.data
+        if (error.response) {
+            return error.response.data;
+        } else {
+            return { message: "An error occurred", error: error.message };
+        }
     }
-}
+};
 
 const get = async (url, items = null) => {
+    console.log(items)
     const method = 'GET';
-    return await request(url, method, null, items);
+    return await requestApi(url, method, items, null, items);
 }
 const post = async (url, body) => {
     const method = 'POST';
-    return await request(url, method, body);
+    return await requestApi(url, method, body);
 }
 const put = async (url, id, body) => {
     const method = 'PUT';
-    return await request(url, method, body);
+    return await requestApi(url, method, body);
 }
 const delete_ = async (url) => {
     const method = 'DELETE';
-    return await request(url, method);
+    return await requestApi(url, method);
 }
 
 
 module.exports = {
-    request,
+    requestApi,
     get,
     post,
     put,

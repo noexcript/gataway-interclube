@@ -1,8 +1,9 @@
 const axios = require("axios")
-export const apiManager = base => {
-    return axios.create({
-        baseURL: base,
-        responseType: 'json',
-        withCredentials: true
-    })
-} 
+
+ const apiManager = axios.create({
+    baseURL: process.env.API_URL,
+    responseType: 'json',
+    withCredentials: true
+})
+
+module.exports =  apiManager
